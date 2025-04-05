@@ -15,9 +15,10 @@
         return ticks * timebase_info.numer / timebase_info.denom;
     }
 
-#elif defined(__GNUC__)
-    #include <x86intrin.h>  // For x86 systems
-    uint64 get_time_ticks()
+#elif defined(__GNUC__) || defined(WIN32)
+    #include <intrin.h>
+
+    uint64 get_ticks()
     {
         return __rdtsc();  // On x86 systems, this works for Intel/AMD
     }
