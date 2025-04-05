@@ -38,7 +38,7 @@ public:
     using Entry = Hash_Map_Entry<Key, Value>;
     using Type = Pair<Key, Value>;
     
-    Hash_Map_Iterator(Entry* entry, uint64 index, uint64 capacity)
+    Hash_Map_Iterator(Entry* entry, int64 index, int64 capacity)
         :_entries(entry), _index(index), _capacity(capacity)
     {
         _skip_invalid_entry();
@@ -66,7 +66,7 @@ public:
 
 private:
     Entry* _entries;
-    uint64 _index, _capacity;
+    int64 _index, _capacity;
 
     void _skip_invalid_entry()
     {
@@ -84,7 +84,7 @@ public:
     using Entry = Hash_Map_Entry<Key, Value>;
     using Iterator = Hash_Map_Iterator<Key, Value>;
 
-    Hash_Map(uint64 initial_capacity = 32)
+    Hash_Map(int64 initial_capacity = 32)
         : _capacity(initial_capacity), _size(0)
     {
         _entries = new Entry[_capacity];
@@ -95,6 +95,11 @@ public:
         delete[] _entries;
     }
 
+    void reserve(int64 capacity)
+    {
+        _resize(capacity);
+    }
+
     void insert(const Key& key, const Value& value)
     {
         if ((_size + 1.0) / _capacity > _max_load_factor) 
@@ -102,7 +107,7 @@ public:
             _resize(_capacity * 2);
         }
 
-        uint64 idx = _probe_insert(key);
+        int64 idx = _probe_insert(key);
         if (_entries[idx].occupied && !_entries[idx].deleted)
         {
             _entries[idx].pair.b = value;
@@ -116,8 +121,8 @@ public:
 
     Value* find(const Key& key)
     {
-        uint64 idx = _probe_search(key);
-        if (idx != _capacity && _entries[idx].is_valid())
+        int64 idx = _probe_search(key);
+        if (idx >= 0 && _entries[idx].is_valid())
         {
             return &_entries[idx].pair.b;
         }
@@ -126,8 +131,8 @@ public:
 
     bool erase(const Key& key)
     {
-        uint64 idx = _probe_search(key);
-        if (idx != _capacity && _entries[idx].is_valid())
+        int64 idx = _probe_search(key);
+        if (idx >= 0 && _entries[idx].is_valid())
         {
             _entries[idx].clear();
             --_size;
@@ -146,28 +151,28 @@ public:
 
 private:
     Entry* _entries;
-    uint64 _capacity, _size;
+    int64 _capacity, _size;
     float _max_load_factor = 0.7f;
     Hash_Function _hash_function;
 
-    uint64 _probe_insert(const Key& key)
+    int64 _probe_insert(const Key& key)
     {
-        uint64 idx = _hash_function(key) % _capacity;
-        uint64 start = idx;
+        int64 idx = _hash_function(key) % _capacity;
+        int64 start = idx;
 
         while (_entries[idx].occupied && !_entries[idx].deleted && _entries[idx].pair.a != key)
         {
             idx = (idx + 1) % _capacity;
-            assert(idx != start);//resize?
+            assert(idx != start);
         }
 
         return idx;
     }
 
-    uint64 _probe_search(const Key& key) const
+    int64 _probe_search(const Key& key) const
     {
-        uint64 idx = _hash_function(key) % _capacity;
-        uint64 start = idx;
+        int64 idx = _hash_function(key) % _capacity;
+        int64 start = idx;
 
         while (_entries[idx].occupied)
         {
@@ -180,19 +185,19 @@ private:
             if (idx == start) break;
         }
 
-        return _capacity; // sentinel value for not found
+        return -1; // sentinel value for not found
     }
 
-    void _resize(uint64 new_cap) 
+    void _resize(int64 new_cap) 
     {
         Entry* old_entries = _entries;
-        uint64 old_capacity = _capacity;
+        int64 old_capacity = _capacity;
 
         _entries = new Entry[new_cap];
         _capacity = new_cap;
         _size = 0;
 
-        for (uint64 i = 0; i < old_capacity; ++i)
+        for (int64 i = 0; i < old_capacity; ++i)
         {
             if (old_entries[i].is_valid())
             {

@@ -96,7 +96,7 @@ public:
     template<typename Predicate>
     int64 find_if(Predicate predicate) const
     {
-        for (int64 i = 0; i < _size;)
+        for (int64 i = 0; i < _size; ++i)
         {
             if (predicate(_data[i]))
             {
@@ -110,7 +110,7 @@ public:
     template<typename Predicate>
     bool erase_if(Predicate predicate)
     {
-        for (int64 i = 0; i < _size;)
+        for (int64 i = 0; i < _size; ++i)
         {
             if (predicate(_data[i]))
             {
