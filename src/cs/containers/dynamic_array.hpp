@@ -10,16 +10,27 @@ class Dynamic_Array
 public:
     Dynamic_Array() = default;
 
+    Dynamic_Array(std::initializer_list<Type> list)
+    {
+        _increase_capacity(list.size());
+        uint64 count = 0;
+        for (const Type& value : list)
+        {
+            _data[count++] = value;
+        }
+        _size = count;
+    }
+
     void reserve(int64 new_size)
     {
-        _resize(new_size);
+        _increase_capacity(new_size);
     }
 
     void push_back(const Type& value)
     {
         if (_size == _capacity)
         {
-            _resize(_capacity == 0 ? 1 : _capacity * 2);
+            _increase_capacity(_capacity == 0 ? 1 : _capacity * 2);
         }
 
         new (_data + _size++) Type(value);
@@ -29,7 +40,7 @@ public:
     {
         if (_size == _capacity)
         {
-            _resize(_capacity == 0 ? 1 : _capacity * 2);
+            _increase_capacity(_capacity == 0 ? 1 : _capacity * 2);
         }
 
         new (_data + _size++) Type(std::move(value));
@@ -93,6 +104,19 @@ public:
         return _data[index];
     }
 
+    int64 find_first(const Type& value) const
+    {
+        for (int64 i = 0; i < _size; ++i)
+        {
+            if (_data[i] == value)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
     template<typename Predicate>
     int64 find_if(Predicate predicate) const
     {
@@ -143,8 +167,9 @@ public:
         return count;
     }
 
-    int64 get_size() const { return _size; }
-    int64 get_capacity() const { return _capacity; }
+    int64 size() const { return _size; }
+    int64 size_in_bytes() const { return _size * sizeof(Type); }
+    int64 capacity() const { return _capacity; }
 
     Type& front() { assert(_size > 0); return _data[0]; }
     Type& front() const { assert(_size > 0); return _data[0]; }
@@ -178,7 +203,7 @@ private:
     Allocator _allocator;
 
 private:
-    void _resize(int64 new_capacity)
+    void _increase_capacity(int64 new_capacity)
     {
         // No need to resize
         if (new_capacity <= _capacity)

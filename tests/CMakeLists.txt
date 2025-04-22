@@ -12,3 +12,7 @@ add_test(NAME Hash_Map_Test_1e1 COMMAND Hash_Map_Test 1)
 add_test(NAME Hash_Map_Test_1e3 COMMAND Hash_Map_Test 3)
 add_test(NAME Hash_Map_Test_1e8 COMMAND Hash_Map_Test 8)
 add_test(NAME Hash_Map_Test_1e16 COMMAND Hash_Map_Test 16)
+
+add_executable(Class_Test class_test/main.cpp)
+target_link_libraries(Class_Test PUBLIC cs_util)
+add_test(NAME Class_Test COMMAND Class_Test)
