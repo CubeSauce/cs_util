@@ -52,6 +52,8 @@ private:
     }
 };
 
+static constexpr Name_Id empty_name_id;
+
 namespace std 
 {
     template<>
