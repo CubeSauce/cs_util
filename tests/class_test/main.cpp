@@ -8,27 +8,37 @@ struct Derived_A : public Base_Class
 {
     DERIVED_CLASS_BODY(Derived_A, Base_Class)
 };
+REGISTER_CLASS(Derived_A);
 
 struct Derived_B : public Base_Class
 {
     DERIVED_CLASS_BODY(Derived_B, Base_Class)
 };
+REGISTER_CLASS(Derived_B);
 
 struct Derived_C : public Derived_B
 {
     DERIVED_CLASS_BODY(Derived_C, Derived_B)
 };
+REGISTER_CLASS(Derived_C);
 
 struct Derived_D : public Derived_C
 {
     DERIVED_CLASS_BODY(Derived_D, Derived_C)
 };
+REGISTER_CLASS(Derived_D);
 
 int main(int argc, char** argv)
 {
     Base_Class base;
-    Derived_A a; Derived_B b; Derived_C c; Derived_D d;
-    Base_Class *base_a = &a, *base_b = &b, *base_c = &c, *base_d = &d;
+    Base_Class *base_a = create_class_instance("Derived_A");
+    assert(base_a);
+    Base_Class *base_b = create_class_instance("Derived_B");
+    assert(base_b);
+    Base_Class *base_c = create_class_instance("Derived_C");
+    assert(base_c);
+    Base_Class *base_d = create_class_instance("Derived_D");
+    assert(base_d);
   
     assert(Derived_A::is_a<Base_Class>());
     
