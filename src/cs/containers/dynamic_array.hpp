@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "cs/cs_util.hpp"
 
 #include <memory>
@@ -211,11 +213,18 @@ private:
             return;
         }
 
-        Type* new_data = _allocator.allocate(new_capacity);
-        for (int64 i = 0; i < _size; ++i) 
+        using traits_t2 = std::allocator_traits<decltype(_allocator)>;
+        Type* new_data = traits_t2::allocate(_allocator, new_capacity);
+
+        for (int64 i = 0; i < _size; ++i)
         {
             new (new_data + i) Type(std::move(_data[i]));
             _data[i].~Type();
+        }
+
+        for (int64 i = _size; i < new_capacity; ++i)
+        {
+            traits_t2::construct(_allocator, new_data + i);
         }
 
         _allocator.deallocate(_data, _capacity);
